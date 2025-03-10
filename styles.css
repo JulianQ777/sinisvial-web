@@ -1,0 +1,41 @@
+/* Estilos generales */
+body {
+    font-family: 'Roboto', sans-serif;
+    margin: 0;
+    padding: 0;
+  }
+  
+  #map {
+    position: absolute;
+    top: 60px;
+    left: 0;
+    width: 100%;
+    height: calc(100% - 60px);
+    z-index: 0;
+  }
+  
+  /* Barra de navegación */
+  nav {
+    position: fixed;
+    top: 0;
+    z-index: 1000;
+  }
+  
+  /* Botones */
+  .btn {
+    margin: 5px;
+    border-radius: 10px;
+  }
+  
+  /* Modal */
+  .modal {
+    border-radius: 10px;
+  }
+  
+  .modal-content {
+    padding: 20px;
+  }
+  
+  .modal-footer {
+    text-align: right;
+  }

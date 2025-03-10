@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SinisVial ⚠️</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+    <link rel="stylesheet" href="https://api.mapbox.com/mapbox-gl-js/v2.10.0/mapbox-gl.css">
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+  </head>
+  <body>
+    <!-- Barra de navegación -->
+    <nav class="blue darken-3" id="navbar">
+      <div class="nav-wrapper">
+        <a href="#" class="brand-logo">SinisVial ⚠️</a>
+        <ul id="nav-mobile" class="right hide-on-med-and-down">
+          <li>
+            <div class="input-field" style="margin: 0; padding: 0;">
+              <input id="search-address" type="text" placeholder="Buscar dirección">
+            </div>
+          </li>
+          <li><a href="#tutorial" id="tutorial-btn">Tutorial</a></li>
+          <li><a href="#reportar" id="report-btn">Reportar Incidente</a></li>
+          <li><a href="#emergencia" id="emergency-btn">Emergencia</a></li>
+          <li><a href="#!" id="show-markers-btn">Ver Marcadores</a></li>
+        </ul>
+      </div>
+    </nav>
+
+    <!-- Mapa -->
+    <div id="map"></div>
+
+    <!-- Tutorial -->
+    <div id="tutorial" class="modal">
+      <div class="modal-content">
+        <h4>¿Cómo usar SinisVial?</h4>
+        <p>1. <strong>Buscar dirección:</strong> Usa el campo de búsqueda para encontrar una ubicación.</p>
+        <p>2. <strong>Reportar un incidente:</strong> Haz clic en el botón "Reportar Incidente" y selecciona la ubicación en el mapa.</p>
+        <p>3. <strong>Buscar rutas seguras:</strong> Usa el mapa para encontrar rutas marcadas como seguras.</p>
+        <p>4. <strong>Emergencia:</strong> Presiona el botón "Emergencia" para contactar servicios de emergencia.</p>
+      </div>
+      <div class="modal-footer">
+        <a href="#!" class="modal-close btn blue">Cerrar</a>
+      </div>
+    </div>
+
+    <!-- Formulario para reportar incidentes -->
+    <div id="reportar" class="modal">
+      <div class="modal-content">
+        <h4>Reportar Incidente</h4>
+        <div class="input-field">
+          <input type="text" id="incidente-descripcion" placeholder="Descripción del incidente">
+          <label for="incidente-descripcion">Descripción</label>
+        </div>
+        <div class="input-field">
+          <select id="color-marcador">
+            <option value="red">Rojo</option>
+            <option value="blue">Azul</option>
+            <option value="green">Verde</option>
+            <option value="orange">Naranja</option>
+          </select>
+          <label>Color del marcador</label>
+        </div>
+        <button class="btn blue" id="confirmar-reporte">Confirmar</button>
+      </div>
+    </div>
+
+    <!-- Botón de emergencia -->
+    <div id="emergencia" class="modal">
+      <div class="modal-content">
+        <h4>¿Necesitas ayuda de emergencia?</h4>
+        <p>Presiona el botón para contactar a los servicios de emergencia.</p>
+        <button class="btn red" id="llamar-emergencia">Llamar al 911</button>
+      </div>
+    </div>
+
+    <!-- Lista de marcadores -->
+    <div id="markers-list" class="modal">
+      <div class="modal-content">
+        <h4>Marcadores Reportados</h4>
+        <ul id="markers-list-content"></ul>
+      </div>
+      <div class="modal-footer">
+        <a href="#!" class="modal-close btn blue">Cerrar</a>
+      </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://api.mapbox.com/mapbox-gl-js/v2.10.0/mapbox-gl.js"></script>
+    <script src="script.js"></script>
+  </body>
+</html>
