@@ -8,17 +8,83 @@ document.addEventListener('DOMContentLoaded', function() {
     // Token de Mapbox (reemplaza con tu token)
     mapboxgl.accessToken = 'pk.eyJ1IjoibG9iZXRlNzciLCJhIjoiY204M213eW1tMDR6OTJrb2tlMGhhc2d5eCJ9.0K4Ci4sixdHbLiCjsU4OAA';
   
-    // Inicializar el mapa
+    // Inicializar el mapa centrado en Bogotá, Colombia
     const map = new mapboxgl.Map({
       container: 'map',
       style: 'mapbox://styles/mapbox/streets-v11',
-      center: [-3.7038, 40.4168], // Coordenadas de Madrid
-      zoom: 13
+      center: [-74.0721, 4.7110], // Coordenadas de Bogotá
+      zoom: 12
     });
   
     // Marcadores
     let markers = [];
-    let currentMarker = null; // Almacena el marcador actual
+    let currentMarker = null;
+  
+    // Imágenes personalizadas para los marcadores
+    const markerImages = {
+      danger: 'https://cdn-icons-png.flaticon.com/512/3522/3522691.png', // Peligro
+      caution: 'https://cdn-icons-png.flaticon.com/512/3522/3522697.png', // Precaución
+      'no-entry': 'https://cdn-icons-png.flaticon.com/512/3522/3522677.png', // No pasar
+      accident: 'https://cdn-icons-png.flaticon.com/512/3522/3522683.png', // Accidente
+    };
+  
+    // Registro de usuarios (almacenamiento local)
+    const users = JSON.parse(localStorage.getItem('users')) || [];
+  
+    // Mostrar modal de login al cargar la aplicación
+    M.Modal.getInstance(document.getElementById('login')).open();
+  
+    // Validar nombre y contraseña (sin espacios en blanco)
+    function validateInput(input) {
+      return input.trim() !== '' && !input.includes(' ');
+    }
+  
+    // Login
+    document.getElementById('login-submit').addEventListener('click', function() {
+      const name = document.getElementById('login-name').value;
+      const password = document.getElementById('login-password').value;
+  
+      if (!validateInput(name) || !validateInput(password)) {
+        alert('Nombre y contraseña no pueden contener espacios en blanco.');
+        return;
+      }
+  
+      const user = users.find(u => u.name === name && u.password === password);
+  
+      if (user) {
+        alert('Ingreso exitoso.');
+        M.Modal.getInstance(document.getElementById('login')).close();
+      } else {
+        alert('Nombre o contraseña incorrectos.');
+      }
+    });
+  
+    // Ingresar sin registrar
+    document.getElementById('login-guest').addEventListener('click', function() {
+      alert('Ingresando como invitado.');
+      M.Modal.getInstance(document.getElementById('login')).close();
+    });
+  
+    // Registro
+    document.getElementById('register-submit').addEventListener('click', function() {
+      const name = document.getElementById('register-name').value;
+      const password = document.getElementById('register-password').value;
+  
+      if (!validateInput(name) || !validateInput(password)) {
+        alert('Nombre y contraseña no pueden contener espacios en blanco.');
+        return;
+      }
+  
+      if (name && password) {
+        users.push({ name, password });
+        localStorage.setItem('users', JSON.stringify(users));
+        alert('Registro exitoso.');
+        M.Modal.getInstance(document.getElementById('register')).close();
+        M.Modal.getInstance(document.getElementById('login')).close(); // Cerrar login después de registro
+      } else {
+        alert('Por favor, completa todos los campos.');
+      }
+    });
   
     // Buscar dirección
     document.getElementById('search-address').addEventListener('keypress', function(e) {
@@ -35,37 +101,6 @@ document.addEventListener('DOMContentLoaded', function() {
             if (data.features.length > 0) {
               const [lng, lat] = data.features[0].center;
               map.flyTo({ center: [lng, lat], zoom: 15 });
-  
-              // Mostrar un botón para agregar un marcador
-              const addMarkerBtn = document.createElement('button');
-              addMarkerBtn.textContent = 'Agregar Marcador Aquí';
-              addMarkerBtn.className = 'btn green';
-              addMarkerBtn.style.marginTop = '10px';
-              addMarkerBtn.onclick = function() {
-                const descripcion = prompt('Ingresa una descripción para el marcador:');
-                if (descripcion) {
-                  const color = document.getElementById('color-marcador').value;
-                  const marker = new mapboxgl.Marker({ color })
-                    .setLngLat([lng, lat])
-                    .addTo(map);
-  
-                  // Mostrar la descripción en un modal
-                  marker.getElement().addEventListener('click', () => {
-                    const modalContent = `
-                      <h4>Descripción del Marcador</h4>
-                      <p>${descripcion}</p>
-                      <button class="btn red" onclick="deleteMarker(${markers.length})">Eliminar Marcador</button>
-                    `;
-                    document.getElementById('markers-list-content').innerHTML = modalContent;
-                    M.Modal.getInstance(document.getElementById('markers-list')).open();
-                  });
-  
-                  markers.push({ marker, descripcion, color });
-                }
-              };
-  
-              const searchContainer = document.getElementById('search-address').parentElement;
-              searchContainer.appendChild(addMarkerBtn);
             } else {
               alert('Dirección no encontrada.');
             }
@@ -77,37 +112,44 @@ document.addEventListener('DOMContentLoaded', function() {
       }
     });
   
-    // Añadir marcador al hacer clic en el mapa
-    map.on('click', function(e) {
-      if (currentMarker) {
-        alert('Solo puedes colocar un marcador por reporte. Genera un nuevo reporte para agregar otro.');
-        return;
-      }
-  
+    // Reportar incidente
+    document.getElementById('confirmar-reporte').addEventListener('click', function() {
       const descripcion = document.getElementById('incidente-descripcion').value;
+      const tipoMarcador = document.getElementById('tipo-marcador').value;
+  
       if (descripcion.trim() === '') {
-        alert('Por favor, ingresa una descripción antes de colocar un marcador.');
+        alert('Por favor, ingresa una descripción.');
         return;
       }
   
-      const color = document.getElementById('color-marcador').value;
-      const marker = new mapboxgl.Marker({ color })
-        .setLngLat(e.lngLat)
-        .addTo(map);
+      alert('Ahora haz clic en el mapa para colocar el marcador.');
+      M.Modal.getInstance(document.getElementById('reportar')).close();
   
-      // Mostrar la descripción en un modal
-      marker.getElement().addEventListener('click', () => {
-        const modalContent = `
-          <h4>Descripción del Marcador</h4>
-          <p>${descripcion}</p>
-          <button class="btn red" onclick="deleteMarker(${markers.length})">Eliminar Marcador</button>
-        `;
-        document.getElementById('markers-list-content').innerHTML = modalContent;
-        M.Modal.getInstance(document.getElementById('markers-list')).open();
+      map.once('click', function(e) {
+        if (currentMarker) {
+          alert('Solo puedes colocar un marcador por reporte. Genera un nuevo reporte para agregar otro.');
+          return;
+        }
+  
+        const markerElement = document.createElement('div');
+        markerElement.className = 'custom-marker';
+        markerElement.style.backgroundImage = `url(${markerImages[tipoMarcador]})`;
+        markerElement.style.width = '30px';
+        markerElement.style.height = '30px';
+        markerElement.style.backgroundSize = 'cover';
+  
+        const marker = new mapboxgl.Marker(markerElement)
+          .setLngLat(e.lngLat)
+          .addTo(map);
+  
+        marker.getElement().addEventListener('click', () => {
+          document.getElementById('marker-description-text').textContent = descripcion;
+          M.Modal.getInstance(document.getElementById('marker-description')).open();
+        });
+  
+        markers.push({ marker, descripcion, tipoMarcador });
+        currentMarker = marker; // Guardar el marcador actual
       });
-  
-      markers.push({ marker, descripcion, color });
-      currentMarker = marker; // Guardar el marcador actual
     });
   
     // Eliminar marcador
@@ -130,18 +172,6 @@ document.addEventListener('DOMContentLoaded', function() {
       `).join('');
       document.getElementById('markers-list-content').innerHTML = listContent;
       M.Modal.getInstance(document.getElementById('markers-list')).open();
-    });
-  
-    // Reportar incidente desde el modal
-    document.getElementById('confirmar-reporte').addEventListener('click', function() {
-      const descripcion = document.getElementById('incidente-descripcion').value;
-      if (descripcion.trim() === '') {
-        alert('Por favor, ingresa una descripción.');
-        return;
-      }
-  
-      alert('Ahora haz clic en el mapa para colocar el marcador.');
-      M.Modal.getInstance(document.getElementById('reportar')).close();
     });
   
     // Botón de emergencia
